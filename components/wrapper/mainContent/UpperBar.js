@@ -9,17 +9,28 @@ const toolBarStyle = {
     "linear-gradient(90deg, rgba(35,40,154,1) 0%, rgba(142,1,191,1) 32%, rgba(166,53,111,1) 71%, rgba(54,14,57,1) 100%)",
 };
 
-const UpperBar = () => {
+const UpperBar = (props) => {
   return (
     <AppBar
       position="fixed"
       sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
     >
       <Toolbar style={toolBarStyle}>
-        <TypoGraphy text={"ADMIN PORTAL"} />
+        <TypoGraphy text={getText(props.username)} />
       </Toolbar>
     </AppBar>
   );
 };
 
 export default UpperBar;
+
+const getText = (username) => {
+  switch (username.toLowerCase().substring(0, 4)) {
+    case "std-":
+      return "STUDENT PORTAL";
+    case "adm-":
+      return "ADMIN PORTAL";
+    case "tch-":
+      return "TEACHER PORTAL";
+  }
+};

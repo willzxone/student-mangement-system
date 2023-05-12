@@ -1,18 +1,24 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import Head from 'next/head';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import { CacheProvider } from '@emotion/react';
-import theme from '../theme';
-import createEmotionCache from '../createEmotionCache';
-
+import * as React from "react";
+import PropTypes from "prop-types";
+import Head from "next/head";
+import { ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import { CacheProvider } from "@emotion/react";
+import theme from "../theme";
+import createEmotionCache from "../createEmotionCache";
+import { Provider } from "react-redux";
+import { wrapper } from "../../store/index";
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 
 export default function MyApp(props) {
-  const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
-
+  const {
+    Component,
+    emotionCache = clientSideEmotionCache,
+    pageProps,
+    ...rest
+  } = props;
+  const { store } = wrapper.useWrappedStore(rest);
   return (
     <CacheProvider value={emotionCache}>
       <Head>
@@ -21,7 +27,9 @@ export default function MyApp(props) {
       <ThemeProvider theme={theme}>
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
-        <Component {...pageProps} />
+        <Provider store={store}>
+          <Component {...pageProps} />
+        </Provider>
       </ThemeProvider>
     </CacheProvider>
   );

@@ -4,11 +4,11 @@ const style = {
   backgroundColor: "#2A284B",
   marginBottom: "0.2rem",
   width: "90%",
-  fontSize: "0.8rem",
+  fontSize: "0.9rem",
   textTransform: "none",
   fontWeight: "100",
   boxShadow: "none",
-  border: "1px solid grey",
+  border: "none",
 };
 
 const ButtonComponent = (props) => {

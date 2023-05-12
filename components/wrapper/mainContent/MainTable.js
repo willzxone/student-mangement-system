@@ -21,7 +21,7 @@ const inputStyle = {
 };
 
 const MainTable = (props) => {
-  return (
+  return props.data ? (
     <TableContainer style={tableContainerStyle} component={Paper}>
       <TextField
         style={inputStyle}
@@ -50,6 +50,8 @@ const MainTable = (props) => {
         </TableBody>
       </Table>
     </TableContainer>
+  ) : (
+    <p>NO DATA FOUND</p>
   );
 };
 
