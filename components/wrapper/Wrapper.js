@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 import { useSelector } from "react-redux";
 import MainContent from "../../components/wrapper/mainContent/MainContent";
-import SideBar from "../wrapper/sideBar/sidebar";
+import SideBar from "../../components/wrapper/sideBar/SideBar";
 import Auth from "./authentication/Authentication";
 
 const Wrapper = (props) => {
@@ -16,7 +16,7 @@ const Wrapper = (props) => {
       ) : (
         <>
           <SideBar />
-          <MainContent data={props.props.data} />
+          <MainContent />
         </>
       )}
     </Box>

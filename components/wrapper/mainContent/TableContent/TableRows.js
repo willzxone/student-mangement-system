@@ -3,7 +3,7 @@ import StyledTableRow from "./TableRowStyle";
 
 const TableRows = (props) => {
   return props.rows.map((row, index) => (
-    <StyledTableRow key={row[0] || index}>
+    <StyledTableRow key={index}>
       {row.map((column, index) => (
         <StyledTableCell key={column || index}>{column}</StyledTableCell>
       ))}

@@ -11,14 +11,16 @@ export const sendLoginCredentials = (credentials) => {
         body: JSON.stringify({
           username: credentials.username,
           password: credentials.password,
+          table: getTable(credentials.username),
         }),
       });
       return await response.json();
     };
     const loginDispatcher = (isLogin) => {
-      isLogin
-        ? dispatch(authActions.toggleLogin(true))
-        : dispatch(authActions.toggleLogin(false));
+      if (isLogin) {
+        dispatch(authActions.toggleLogin(true));
+        dispatch(authActions.setPortal(getTable(credentials.username)));
+      } else dispatch(authActions.toggleLogin(false));
     };
 
     try {
@@ -32,7 +34,18 @@ export const sendLoginCredentials = (credentials) => {
       } else loginDispatcher(false);
     } catch (error) {
       dispatch(authActions.setError(true));
-      dispatch(authActions.toggleLogin(false));
+      loginDispatcher(false);
     }
   };
+};
+
+const getTable = (username) => {
+  switch (username.toLowerCase().substring(0, 4)) {
+    case "std-":
+      return "student";
+    case "tch-":
+      return "teacher";
+    case "adm-":
+      return "admin";
+  }
 };

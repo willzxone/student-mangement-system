@@ -1,6 +1,59 @@
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import Button from "../../UI/Button";
+
+import { sideBarActions } from "../../../store/slices/SideBarSlice";
+import { mainContentActions } from "../../../store/slices/MainContentSlice";
+import { useSelector, useDispatch } from "react-redux";
+import { showMainContent } from "../../../store/actions/MainContentAction";
+import { RequestForApi } from "./RequestForApi";
+
+const query = (button) => {
+  switch (button.toLowerCase()) {
+    case "view class":
+      return "BEGIN GET_CLASSES_SPECFIC_STD(:username, :cursor); END;";
+    case "view scheduled classes":
+      return "BEGIN GET_SCHEDULED_CLASSES_SPECFIC_STD(:username, :cursor); END;";
+    case "view attendance":
+      return "BEGIN GET_CLASSES_SPECFIC_STD(:username, :cursor); END;";
+  }
+};
+
+const LowerBar = (props) => {
+  const dispatch = useDispatch();
+  const username = useSelector((state) => state.auth.username);
+
+  const onClickHandler = (event) => {
+    event.preventDefault();
+    if (event.target.textContent === "View Attendance")
+      dispatch(mainContentActions.setSelectedList(""));
+
+    //Setting which button is clicked
+    dispatch(sideBarActions.setButtonKey(event.target.textContent));
+    dispatch(mainContentActions.setContent(undefined));
+
+    //Dispatching Action To Get Data From DB Respective To That Button
+    dispatch(
+      showMainContent(
+        RequestForApi(query(event.target.textContent), { username }),
+        event.target.textContent
+      )
+    );
+  };
+
+  return (
+    <List style={style}>
+      {props.buttons.map((text) => (
+        <ListItem onClick={onClickHandler} style={itemStyle} key={text}>
+          <Button style={btnStyle}>{text}</Button>
+        </ListItem>
+      ))}
+    </List>
+  );
+};
+
+export default LowerBar;
+
 const style = {
   display: "flex",
   backgroundColor: "#090622",
@@ -25,17 +78,3 @@ const btnStyle = {
   boxShadow: "none",
   border: "1px solid grey",
 };
-
-const LowerBar = (prop) => {
-  return (
-    <List style={style}>
-      {prop.buttons.map((text, index) => (
-        <ListItem style={itemStyle} key={text}>
-          <Button style={btnStyle}>{text}</Button>
-        </ListItem>
-      ))}
-    </List>
-  );
-};
-
-export default LowerBar;

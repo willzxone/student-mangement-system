@@ -3,19 +3,14 @@ import { createSlice } from "@reduxjs/toolkit";
 const sideBarSlice = createSlice({
   name: "SideBar",
   initialState: {
-    username: "std-",
-    password: "",
-    isLoggedIn: false,
+    buttonKey: "",
   },
   reducers: {
-    setUserName(state, action) {
-      state.username = action.payload.username;
+    setButtonKey(state, action) {
+      state.buttonKey = action.payload;
     },
-    setPassword(state, action) {
-      state.password = action.payload.password;
-    },
-    toggleLogin(state) {
-      state.isLoggedIn = !state.isLoggedIn;
+    setInitialState(state) {
+      state.buttonKey = "";
     },
   },
 });

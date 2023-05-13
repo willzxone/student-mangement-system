@@ -27,7 +27,6 @@ const SignInForm = () => {
   const formSubmitHandler = (event) => {
     event.preventDefault();
     dispatch(sendLoginCredentials({ username, password }));
-    //send post request to api and if login success than only do further task
   };
 
   return (

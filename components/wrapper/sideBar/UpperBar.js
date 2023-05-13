@@ -4,6 +4,8 @@ import LockOpenSharpIcon from "@mui/icons-material/LockOpenSharp";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { authActions } from "../../../store/slices/AuthSlice";
+import { mainContentActions } from "../../../store/slices/MainContentSlice";
+import { sideBarActions } from "../../../store/slices/SideBarSlice";
 import { useSelector, useDispatch } from "react-redux";
 import Card from "../../UI/Card";
 
@@ -16,6 +18,8 @@ const UpperBar = (props) => {
     if (isLoggedIn) dispatch(authActions.toggleLogin());
     dispatch(authActions.setUserName({ username: "std-" }));
     dispatch(authActions.setPassword({ password: "" }));
+    dispatch(mainContentActions.setInitialState());
+    dispatch(sideBarActions.setInitialState());
   };
 
   return (

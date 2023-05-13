@@ -6,7 +6,6 @@ import { useSelector, useDispatch } from "react-redux";
 
 export default function sidebar() {
   const username = useSelector((state) => state.auth.username);
-
   return (
     <Drawer>
       <UpperBar username={username} />
@@ -19,7 +18,7 @@ export default function sidebar() {
 const getButtons = (username) => {
   switch (username.toLowerCase().substring(0, 4)) {
     case "std-":
-      return ["View Attendance", "View Class"];
+      return ["View Attendance", "View Class", "View Scheduled Classes"];
     case "adm-":
       return [
         "Add Student",
@@ -27,8 +26,8 @@ const getButtons = (username) => {
         "Edit Student",
         "Edit Teacher",
         "Create Class",
-        "View Class",
         "Schedule Class",
+        "View Details",
       ];
     case "tch-":
       return [

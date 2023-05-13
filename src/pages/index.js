@@ -1,12 +1,11 @@
 import Wrapper from "../../components/wrapper/Wrapper";
 
-const APP = (props) => {
-  return <Wrapper props={props} />;
+const APP = () => {
+  return <Wrapper />;
 };
 export async function getStaticProps(context) {
   const res = await fetch(`http://localhost:3000/api/regions`);
   const result = await res.json();
-  console.log("-----------------------------------------------------");
   return {
     props: {
       data: result,

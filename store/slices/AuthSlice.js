@@ -7,6 +7,7 @@ const AuthSlice = createSlice({
     password: "",
     isLoggedIn: false, //change it back to false
     errorMessage: false,
+    portal: "",
   },
   reducers: {
     setUserName(state, action) {
@@ -20,6 +21,9 @@ const AuthSlice = createSlice({
     },
     setError(state, action) {
       state.errorMessage = action.payload;
+    },
+    setPortal(state, action) {
+      state.portal = action.payload;
     },
   },
 });
