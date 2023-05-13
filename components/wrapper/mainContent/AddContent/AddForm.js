@@ -3,7 +3,8 @@ import Button from "@mui/material/Button";
 import { useSelector, useDispatch } from "react-redux";
 import Grid from "@mui/material/Unstable_Grid2";
 import { addFormActions } from "../../../../store/slices/AddFormSlice";
-import React from "react";
+import { RequestForApi } from "../../sideBar/RequestForApi";
+import { showMainContent } from "../../../../store/actions/MainContentAction";
 
 const getInputs = (values, dispatch) => {
   const inputHandler = (event) => {
@@ -39,8 +40,20 @@ const getInputs = (values, dispatch) => {
   });
 };
 
+const query = (button) => {
+  switch (button.toLowerCase()) {
+    case "add student":
+    case "add teacher":
+      return "BEGIN ADD_USER(first_name=> :firstname, last_name=>:lastname, contact=>:contact, blood_group=>:bloodgroup ,address=>:address,email=> :email,gender=>:gender,pass=>:password,table_name=>:username); END;";
+    default:
+      return null;
+  }
+};
+
 const AddForm = () => {
   const dispatch = useDispatch();
+  const buttonKey = useSelector((state) => state.sidebar.buttonKey);
+  const username = buttonKey.toLowerCase().split(" ")[1];
   const formData = [
     {
       name: "First Name",
@@ -63,18 +76,40 @@ const AddForm = () => {
 
   const formSubmitHandler = (event) => {
     event.preventDefault();
-    console.log(formData[0].value);
+    const queryDetails = query(buttonKey);
+    if (queryDetails !== null)
+      dispatch(
+        showMainContent(
+          RequestForApi(
+            queryDetails,
+            {
+              firstname: formData[0].value,
+              lastname: formData[1].value,
+              password: formData[2].value,
+              contact: formData[3].value,
+              email: formData[4].value,
+              bloodgroup: formData[5].value,
+              gender: formData[6].value,
+              address: formData[7].value,
+              username,
+            },
+            false
+          ),
+          event.target.textContent
+        )
+      );
+    console.log(username);
   };
 
   return (
     <form onSubmit={formSubmitHandler}>
       <Grid container spacing={2} columns={4} style={formStyle}>
         <Grid xs={4}>
-          <p style={headingStyle}>ADD STUDENT</p>
+          <p style={headingStyle}>{buttonKey.toUpperCase()}</p>
         </Grid>
         {getInputs(formData, dispatch)}
         {true && (
-          <Grid xs={4}>
+          <Grid display="flex" justifyContent="center" xs={4}>
             <Button
               style={{ width: "50%" }}
               type="submit"

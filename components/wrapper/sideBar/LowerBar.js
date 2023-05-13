@@ -16,6 +16,13 @@ const query = (button) => {
       return "BEGIN GET_SCHEDULED_CLASSES_SPECFIC_STD(:username, :cursor); END;";
     case "view attendance":
       return "BEGIN GET_CLASSES_SPECFIC_STD(:username, :cursor); END;";
+    case "add student":
+    case "add teacher":
+    case "edit teacher":
+    case "edit student":
+      return "Show Content";
+    default:
+      return null;
   }
 };
 
@@ -25,7 +32,10 @@ const LowerBar = (props) => {
 
   const onClickHandler = (event) => {
     event.preventDefault();
-    if (event.target.textContent === "View Attendance")
+    if (
+      event.target.textContent === "View Attendance" ||
+      event.target.textContent === "View Details"
+    )
       dispatch(mainContentActions.setSelectedList(""));
 
     //Setting which button is clicked
@@ -33,12 +43,17 @@ const LowerBar = (props) => {
     dispatch(mainContentActions.setContent(undefined));
 
     //Dispatching Action To Get Data From DB Respective To That Button
-    dispatch(
-      showMainContent(
-        RequestForApi(query(event.target.textContent), { username }),
-        event.target.textContent
-      )
-    );
+    const queryDetails = query(event.target.textContent);
+    if (queryDetails !== "Show Content" && queryDetails !== null) {
+      console.log("dispacting request: ", queryDetails);
+      dispatch(
+        showMainContent(
+          RequestForApi(queryDetails, { username }, true),
+          event.target.textContent
+        )
+      );
+    } else if (queryDetails === "Show Content")
+      dispatch(mainContentActions.showContent(true));
   };
 
   return (

@@ -9,7 +9,9 @@ export default async function handler(req, res) {
     const data = req.body;
     const query = data.query;
     const details = data.details;
-    details["cursor"] = { type: oracledb.CURSOR, dir: oracledb.BIND_OUT };
+    console.log(query, details);
+    if (data.isReturn)
+      details["cursor"] = { type: oracledb.CURSOR, dir: oracledb.BIND_OUT };
 
     //GETTING ORACLE CONNECTION
     const orcl = await getConnection();
@@ -17,9 +19,12 @@ export default async function handler(req, res) {
     try {
       //GETTING TABLE FROM DATABASE AND SENDING ROWS FROM RESULT
       const result = await orcl.execute(query, details);
-      const metaData = await result.outBinds.cursor.metaData;
-      const rows = await result.outBinds.cursor.getRows();
-      res.status(200).json({ metaData, rows });
+      if (data.isReturn) {
+        const metaData = await result.outBinds.cursor.metaData;
+        const rows = await result.outBinds.cursor.getRows();
+        res.status(200).json({ metaData, rows });
+      } else res.status(200).json(result);
+      orcl.commit();
     } catch (err) {
       console.error(err);
       res

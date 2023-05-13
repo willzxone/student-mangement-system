@@ -1,5 +1,7 @@
+import { useSelector } from "react-redux";
 import { mainContentActions } from "../slices/MainContentSlice";
 import { sendRequest } from "./SendRequest";
+
 export const showMainContent = (request, buttonKey) => {
   return async (dispatch) => {
     const showContentDispatcher = (result, isShowContent) => {
@@ -18,6 +20,7 @@ export const showMainContent = (request, buttonKey) => {
         body: {
           query: request.query,
           details: request.details,
+          isReturn: request.isReturn,
         },
       });
       showContentDispatcher(result, true);
