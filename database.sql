@@ -163,6 +163,19 @@ EXCEPTION
       ROLLBACK TO CURRENT_DB_STATE;       
 END;
 
+CREATE OR REPLACE PROCEDURE ADD_CLASS(class_name VARCHAR2, class_location VARCHAR2, teacher_id VARCHAR2)
+AS
+
+BEGIN
+SAVEPOINT CURRENT_DB_STATE;   
+    
+    INSERT INTO CLASS VALUES('cls-0',class_name,class_location);
+    
+    INSERT INTO TCHCLASSDETAILS VALUES (teacher_id, 'cls-' || LPAD(CLASS_ID_SEQ.CURRVAL, 3, '0'));
+EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK TO CURRENT_DB_STATE;       
+END;
 
 --------------------------------------------------------------------TRIGGERS--------------------------------------------------------------------
 
@@ -182,7 +195,18 @@ BEGIN
     :NEW.t_id := 'tch-' || LPAD(TCH_ID_SEQ.NEXTVAL-1, 3, '0');
 END;
 
+--
+
+CREATE OR REPLACE TRIGGER CLASS_ID_TRIGGER
+BEFORE INSERT ON CLASS
+FOR EACH ROW
+BEGIN
+    :NEW.class_id := 'cls-' || LPAD(CLASS_ID_SEQ.NEXTVAL, 3, '0');
+END;
+
+
 --------------------------------------------------------------------SEQUENCES--------------------------------------------------------------------
+--STUDENT
 CREATE SEQUENCE STD_ID_SEQ
     START WITH 1
     INCREMENT BY 1
@@ -193,6 +217,7 @@ SELECT STD_ID_SEQ.NEXTVAL FROM DUAL;
 
 DROP SEQUENCE STD_ID_SEQ;
 
+--TEACHER
 CREATE SEQUENCE TCH_ID_SEQ
     START WITH 1
     INCREMENT BY 1
@@ -202,6 +227,18 @@ CREATE SEQUENCE TCH_ID_SEQ
 SELECT TCH_ID_SEQ.NEXTVAL FROM DUAL;
 
 DROP SEQUENCE TCH_ID_SEQ;
+
+--CLASS
+CREATE SEQUENCE CLASS_ID_SEQ
+    START WITH 1
+    INCREMENT BY 1
+    MAXVALUE 9999999999
+    CYCLE
+    NOCACHE;
+SELECT CLASS_ID_SEQ.NEXTVAL FROM DUAL;
+
+DROP SEQUENCE CLASS_ID_SEQ;
+
 --------------------------------------------------------------------QUERIES--------------------------------------------------------------------
 
 -------------------------------------------GET CLASSES DETAILS FOR SPECIFC STUDENT-------------------------------------------------------------

@@ -9,18 +9,29 @@ const initialState = {
   email: "",
   address: "",
   password: "",
+  classname: "",
+  classlocation: "",
+  teacherid: "",
   isShowButton: false,
   isSubmitted: false,
   isUserDetailButton: false,
   userDetailButtonData: "",
   isUserDetailFound: false,
   userDetails: undefined,
+  snackbarMessage: "",
+  snackbarAlert: "",
 };
 
 const AddFormSlice = createSlice({
   name: "Auth",
   initialState,
   reducers: {
+    setSnackBarMessage(state, action) {
+      state.snackbarMessage = action.payload;
+    },
+    setSnackBarAlert(state, action) {
+      state.snackbarAlert = action.payload;
+    },
     setUserDetailButtonData(state, action) {
       state.userDetailButtonData = action.payload;
     },
@@ -66,6 +77,15 @@ const AddFormSlice = createSlice({
         case "Address":
           state.address = action.payload.value;
           break;
+        case "Class Name":
+          state.classname = action.payload.value;
+          break;
+        case "Class Location":
+          state.classlocation = action.payload.value;
+          break;
+        case "Teacher ID":
+          state.teacherid = action.payload.value;
+          break;
       }
     },
 
@@ -82,6 +102,9 @@ const AddFormSlice = createSlice({
       state.userDetailButtonData = "";
       state.isUserDetailFound = false;
       state.userDetails = undefined;
+      state.classlocation = "";
+      state.classname = "";
+      state.teacherid = "";
     },
   },
 });

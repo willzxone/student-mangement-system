@@ -49,14 +49,15 @@ const SearchBar = (props) => {
   useEffect(() => {
     if (isUserDetailFound === true && userDetails !== undefined) {
       let value;
-      userDetails.metaData.forEach((meta, index) => {
-        value = "";
-        if (userDetails.rows.length > 0) {
-          value = userDetails.rows[0][index];
-        }
-        const name = meta.name;
-        dispatch(addFormActions.setDetails({ value, name }));
-      });
+      if (userDetails.metaData !== undefined)
+        userDetails.metaData.forEach((meta, index) => {
+          value = "";
+          if (userDetails.rows.length > 0) {
+            value = userDetails.rows[0][index];
+          }
+          const name = meta.name;
+          dispatch(addFormActions.setDetails({ value, name }));
+        });
     }
   }, [isUserDetailFound, userDetails]);
 

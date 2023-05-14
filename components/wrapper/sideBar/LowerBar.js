@@ -23,6 +23,9 @@ const query = (button) => {
     case "edit teacher":
     case "edit student":
       return "EDIT USER";
+    case "create class":
+    case "schedule class":
+      return "ADD CLASS";
     default:
       return "";
   }
@@ -55,7 +58,11 @@ const LowerBar = (props) => {
           event.target.textContent
         )
       );
-    } else if (queryDetails === "ADD USER" || queryDetails === "EDIT USER") {
+    } else if (
+      queryDetails === "ADD USER" ||
+      queryDetails === "EDIT USER" ||
+      queryDetails === "ADD CLASS"
+    ) {
       dispatch(mainContentActions.showContent(true));
       if (queryDetails === "EDIT USER")
         dispatch(addFormActions.setShowUserDetailButton(true));

@@ -2,7 +2,7 @@ import Grid from "@mui/material/Unstable_Grid2";
 import TextField from "@mui/material/TextField";
 import { addFormActions } from "../../../../store/slices/AddFormSlice";
 
-export const getInputs = (values, dispatch) => {
+export const getInputs = (values, dispatch, username) => {
   const inputHandler = (event) => {
     event.preventDefault();
     const { value, name } = event.target;
@@ -10,14 +10,15 @@ export const getInputs = (values, dispatch) => {
   };
   return values.map((item, index) => {
     let type = "text";
-    switch (index) {
-      case 2:
-        type = "password";
-        break;
-      case 4:
-        type = "email";
-        break;
-    }
+    if (username === "Teacher" || username === "Student")
+      switch (index) {
+        case 2:
+          type = "password";
+          break;
+        case 4:
+          type = "email";
+          break;
+      }
     return (
       <Grid key={index} xs={4}>
         <TextField

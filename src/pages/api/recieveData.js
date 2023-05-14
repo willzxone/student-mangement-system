@@ -9,7 +9,6 @@ export default async function handler(req, res) {
     const data = req.body;
     const query = data.query;
     const details = data.details;
-
     if (data.isReturn)
       details["cursor"] = { type: oracledb.CURSOR, dir: oracledb.BIND_OUT };
     //GETTING ORACLE CONNECTION

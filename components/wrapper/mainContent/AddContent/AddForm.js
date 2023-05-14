@@ -13,6 +13,9 @@ const AddForm = () => {
   const buttonKey = useSelector((state) => state.sidebar.buttonKey);
   const isShowButton = useSelector((state) => state.addform.isShowButton);
   const isSubmitted = useSelector((state) => state.addform.isSubmitted);
+  const snackBarData = useSelector((state) => state.addform.snackbarMessage);
+  const snackBarAlert = useSelector((state) => state.addform.snackbarAlert);
+
   const isUserDetailButton = useSelector(
     (state) => state.addform.isUserDetailButton
   );
@@ -20,9 +23,11 @@ const AddForm = () => {
     (state) => state.addform.userDetailButtonData
   );
   const username = buttonKey.split(" ")[1];
-  const snackBarData = buttonKey.split(" ")[0];
 
-  const formData = [
+  const isShowClassAddForm =
+    username !== "Class" && buttonKey !== "Schedule Class";
+
+  const formDataUser = [
     {
       name: "First Name",
       value: useSelector((state) => state.addform.firstname),
@@ -42,11 +47,36 @@ const AddForm = () => {
     { name: "Address", value: useSelector((state) => state.addform.address) },
   ];
 
+  const formDataClass = [
+    {
+      name: "Class Name",
+      value: useSelector((state) => state.addform.classname),
+    },
+    {
+      name: "Class Location",
+      value: useSelector((state) => state.addform.classlocation),
+    },
+    {
+      name: "Teacher ID",
+      value: useSelector((state) => state.addform.teacherid),
+    },
+  ];
+
   useEffect(() => {
-    if (formData.every((obj) => obj.value.trim() !== "")) {
+    if (formDataUser.every((obj) => obj.value.trim() !== "")) {
       dispatch(addFormActions.setShowButton(true));
     } else dispatch(addFormActions.setShowButton(false));
-  }, [formData]);
+  }, [formDataUser]);
+
+  useEffect(() => {
+    if (!isShowClassAddForm) {
+      if (formDataClass.every((obj) => obj.value.trim() !== "")) {
+        dispatch(addFormActions.setShowButton(true));
+      } else {
+        dispatch(addFormActions.setShowButton(false));
+      }
+    }
+  }, [formDataClass, isShowClassAddForm]);
 
   const handleClose = (reason) => {
     if (reason === "clickaway") {
@@ -63,7 +93,7 @@ const AddForm = () => {
           event,
           dispatch,
           buttonKey,
-          formData,
+          isShowClassAddForm ? formDataUser : formDataClass,
           username,
           userDetailButtonData
         )
@@ -76,7 +106,9 @@ const AddForm = () => {
           </Grid>
         )}
         {isUserDetailButton && <SearchBar username={username} />}
-        {getInputs(formData, dispatch)}
+        {isShowClassAddForm
+          ? getInputs(formDataUser, dispatch, username)
+          : getInputs(formDataClass, dispatch, username)}
         {isShowButton && (
           <Grid display="flex" justifyContent="center" xs={4}>
             <Button
@@ -93,8 +125,8 @@ const AddForm = () => {
       {isSubmitted && (
         <SnackBar
           data={{
-            alert: "success",
-            message: `${username.toUpperCase()} ${snackBarData.toUpperCase()}ED SUCCESSFULLY!`,
+            alert: snackBarAlert,
+            message: snackBarData,
             handleClose,
           }}
         />
