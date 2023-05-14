@@ -1,59 +1,27 @@
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
 import { useSelector, useDispatch } from "react-redux";
+import Button from "@mui/material/Button";
 import Grid from "@mui/material/Unstable_Grid2";
 import { addFormActions } from "../../../../store/slices/AddFormSlice";
-import { RequestForApi } from "../../sideBar/RequestForApi";
-import { showMainContent } from "../../../../store/actions/MainContentAction";
-
-const getInputs = (values, dispatch) => {
-  const inputHandler = (event) => {
-    event.preventDefault();
-    const { value, name } = event.target;
-    dispatch(addFormActions.setDetails({ value, name }));
-  };
-  return values.map((item, index) => {
-    let type = "text";
-    switch (index) {
-      case 2:
-        type = "password";
-        break;
-      case 6:
-        type = "email";
-        break;
-    }
-    return (
-      <Grid key={index} xs={4}>
-        <TextField
-          style={inputStyle}
-          className="filled-basic"
-          name={item.name}
-          key={item.name}
-          label={item.name}
-          variant="filled"
-          type={type}
-          value={item.value}
-          onChange={inputHandler}
-        />
-      </Grid>
-    );
-  });
-};
-
-const query = (button) => {
-  switch (button.toLowerCase()) {
-    case "add student":
-    case "add teacher":
-      return "BEGIN ADD_USER(first_name=> :firstname, last_name=>:lastname, contact=>:contact, blood_group=>:bloodgroup ,address=>:address,email=> :email,gender=>:gender,pass=>:password,table_name=>:username); END;";
-    default:
-      return null;
-  }
-};
+import { getInputs } from "./GetInputs";
+import SnackBar from "../../../UI/SnackBar";
+import SearchBar from "./SearchBar";
+import { formSubmitHandler } from "./FormSubmitHandler";
+import { useEffect } from "react";
 
 const AddForm = () => {
   const dispatch = useDispatch();
   const buttonKey = useSelector((state) => state.sidebar.buttonKey);
-  const username = buttonKey.toLowerCase().split(" ")[1];
+  const isShowButton = useSelector((state) => state.addform.isShowButton);
+  const isSubmitted = useSelector((state) => state.addform.isSubmitted);
+  const isUserDetailButton = useSelector(
+    (state) => state.addform.isUserDetailButton
+  );
+  const userDetailButtonData = useSelector(
+    (state) => state.addform.userDetailButtonData
+  );
+  const username = buttonKey.split(" ")[1];
+  const snackBarData = buttonKey.split(" ")[0];
+
   const formData = [
     {
       name: "First Name",
@@ -74,41 +42,42 @@ const AddForm = () => {
     { name: "Address", value: useSelector((state) => state.addform.address) },
   ];
 
-  const formSubmitHandler = (event) => {
-    event.preventDefault();
-    const queryDetails = query(buttonKey);
-    if (queryDetails !== null)
-      dispatch(
-        showMainContent(
-          RequestForApi(
-            queryDetails,
-            {
-              firstname: formData[0].value,
-              lastname: formData[1].value,
-              password: formData[2].value,
-              contact: formData[3].value,
-              email: formData[4].value,
-              bloodgroup: formData[5].value,
-              gender: formData[6].value,
-              address: formData[7].value,
-              username,
-            },
-            false
-          ),
-          event.target.textContent
-        )
-      );
-    console.log(username);
+  useEffect(() => {
+    if (formData.every((obj) => obj.value.trim() !== "")) {
+      dispatch(addFormActions.setShowButton(true));
+    } else dispatch(addFormActions.setShowButton(false));
+  }, [formData]);
+
+  const handleClose = (reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    dispatch(addFormActions.setSubmitButton(false));
+    dispatch(addFormActions.setInitialState(""));
   };
 
   return (
-    <form onSubmit={formSubmitHandler}>
+    <form
+      onSubmit={(event) =>
+        formSubmitHandler(
+          event,
+          dispatch,
+          buttonKey,
+          formData,
+          username,
+          userDetailButtonData
+        )
+      }
+    >
       <Grid container spacing={2} columns={4} style={formStyle}>
-        <Grid xs={4}>
-          <p style={headingStyle}>{buttonKey.toUpperCase()}</p>
-        </Grid>
+        {!isUserDetailButton && (
+          <Grid xs={4}>
+            <p style={headingStyle}>{buttonKey.toUpperCase()}</p>
+          </Grid>
+        )}
+        {isUserDetailButton && <SearchBar username={username} />}
         {getInputs(formData, dispatch)}
-        {true && (
+        {isShowButton && (
           <Grid display="flex" justifyContent="center" xs={4}>
             <Button
               style={{ width: "50%" }}
@@ -121,18 +90,20 @@ const AddForm = () => {
           </Grid>
         )}
       </Grid>
+      {isSubmitted && (
+        <SnackBar
+          data={{
+            alert: "success",
+            message: `${username.toUpperCase()} ${snackBarData.toUpperCase()}ED SUCCESSFULLY!`,
+            handleClose,
+          }}
+        />
+      )}
     </form>
   );
 };
 
 export default AddForm;
-
-const inputStyle = {
-  backgroundColor: "white",
-  width: "100%",
-  borderRadius: "5px",
-  fontSize: "1.5rem",
-};
 
 const headingStyle = {
   textAlign: "center",

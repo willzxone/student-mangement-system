@@ -89,7 +89,6 @@ EXCEPTION
       ROLLBACK TO CURRENT_DB_STATE;       
 END;
 
-
 CREATE OR REPLACE PROCEDURE ADD_USER_CREDENTIALS(USER_ID VARCHAR2 ,pass VARCHAR2,table_name VARCHAR2)
 AS
     SELECT_USER VARCHAR2 (4);
@@ -109,6 +108,61 @@ EXCEPTION
     WHEN OTHERS THEN
       ROLLBACK TO CURRENT_DB_STATE;       
 END;
+
+CREATE OR REPLACE PROCEDURE GET_USER_DETAILS(USER_ID VARCHAR2, table_name VARCHAR2,l_result OUT SYS_REFCURSOR)
+AS
+SELECT_ID VARCHAR2(6);
+SQL_STATEMENT VARCHAR2(200);
+BEGIN
+SAVEPOINT CURRENT_DB_STATE; 
+    IF table_name = 'student' 
+    THEN SELECT_ID := 'std_id';
+    ELSE SELECT_ID := 't_id'; END IF;
+    
+    OPEN l_result FOR
+        'SELECT first_name "First Name", last_name "Last Name", cred.Password "Password", Contact "Contact", Email "Email", blood_group "Bloodgroup",Gender "Gender",Address "Address"
+                      FROM '||table_name||', '||table_name||'Credentials cred
+                      WHERE 
+                          '||SELECT_ID||' = cred.username AND
+                          cred.username = :USER_ID'
+        USING USER_ID;
+EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK TO CURRENT_DB_STATE;       
+END;
+
+CREATE OR REPLACE PROCEDURE EDIT_USER(USER_ID VARCHAR2,first_name VARCHAR2, last_name VARCHAR2, contact VARCHAR2,gender VARCHAR2,email VARCHAR2, blood_group VARCHAR2, address VARCHAR2,pass VARCHAR2,table_name VARCHAR2)
+AS
+SQL_STATMENT VARCHAR2(200);
+SELECT_USER VARCHAR2(6);
+BEGIN
+SAVEPOINT CURRENT_DB_STATE; 
+    IF TABLE_NAME = 'student' THEN 
+        SELECT_USER := 'std_id';
+    ELSE 
+        SELECT_USER := 't_id'; 
+    END IF;
+    
+    SQL_STATMENT := 'UPDATE ' || TABLE_NAME || ' 
+                SET first_name = :FIRST_NAME , last_name = :LAST_NAME , gender = :GENDER , contact = :CONTACT , email = :EMAIL
+                 WHERE ' || SELECT_USER || ' = :USER_ID';           
+                     
+    EXECUTE IMMEDIATE SQL_STATMENT USING FIRST_NAME,LAST_NAME,GENDER,CONTACT,EMAIL, USER_ID;
+                      
+    SQL_STATMENT := 'UPDATE ' || TABLE_NAME || ' 
+                SET blood_group = :blood_group , address = :address 
+                WHERE ' || SELECT_USER || ' = :USER_ID'; 
+    EXECUTE IMMEDIATE SQL_STATMENT USING blood_group,address,USER_ID;
+                             
+    SQL_STATMENT := 'UPDATE '|| TABLE_NAME||'Credentials 
+                    SET password = :pass WHERE username = :USER_ID';
+    EXECUTE IMMEDIATE SQL_STATMENT USING PASS,USER_ID;
+    
+EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK TO CURRENT_DB_STATE;       
+END;
+
 
 --------------------------------------------------------------------TRIGGERS--------------------------------------------------------------------
 
@@ -150,7 +204,6 @@ SELECT TCH_ID_SEQ.NEXTVAL FROM DUAL;
 DROP SEQUENCE TCH_ID_SEQ;
 --------------------------------------------------------------------QUERIES--------------------------------------------------------------------
 
-
 -------------------------------------------GET CLASSES DETAILS FOR SPECIFC STUDENT-------------------------------------------------------------
 SELECT c.class_id AS "CLASS ID",c.class_name "CLASS NAME",c.class_location AS LOCATION
 FROM class c, classDetails cdetail
@@ -162,7 +215,6 @@ FROM class c
 JOIN classSchedule cschedule ON c.class_id = cschedule.class_id
 JOIN classDetails cdetail ON cschedule.class_id = cdetail.class_id
 WHERE cdetail.std_id LIKE 'std-002';
-
 
 -------------------------------------------------------------------GET ATTENDANCE OF A STUDENT---------------------------------------------------------------------------
 

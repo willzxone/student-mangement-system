@@ -7,6 +7,7 @@ import { mainContentActions } from "../../../store/slices/MainContentSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { showMainContent } from "../../../store/actions/MainContentAction";
 import { RequestForApi } from "./RequestForApi";
+import { addFormActions } from "../../../store/slices/AddFormSlice";
 
 const query = (button) => {
   switch (button.toLowerCase()) {
@@ -18,11 +19,12 @@ const query = (button) => {
       return "BEGIN GET_CLASSES_SPECFIC_STD(:username, :cursor); END;";
     case "add student":
     case "add teacher":
+      return "ADD USER";
     case "edit teacher":
     case "edit student":
-      return "Show Content";
+      return "EDIT USER";
     default:
-      return null;
+      return "";
   }
 };
 
@@ -41,19 +43,24 @@ const LowerBar = (props) => {
     //Setting which button is clicked
     dispatch(sideBarActions.setButtonKey(event.target.textContent));
     dispatch(mainContentActions.setContent(undefined));
+    dispatch(addFormActions.setInitialState(""));
+    dispatch(addFormActions.setUserDetailButtonData(""));
 
     //Dispatching Action To Get Data From DB Respective To That Button
     const queryDetails = query(event.target.textContent);
-    if (queryDetails !== "Show Content" && queryDetails !== null) {
-      console.log("dispacting request: ", queryDetails);
+    if (queryDetails.length > 20) {
       dispatch(
         showMainContent(
           RequestForApi(queryDetails, { username }, true),
           event.target.textContent
         )
       );
-    } else if (queryDetails === "Show Content")
+    } else if (queryDetails === "ADD USER" || queryDetails === "EDIT USER") {
       dispatch(mainContentActions.showContent(true));
+      if (queryDetails === "EDIT USER")
+        dispatch(addFormActions.setShowUserDetailButton(true));
+      else dispatch(addFormActions.setShowUserDetailButton(false));
+    } else dispatch(mainContentActions.showContent(false));
   };
 
   return (

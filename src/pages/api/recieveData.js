@@ -9,13 +9,11 @@ export default async function handler(req, res) {
     const data = req.body;
     const query = data.query;
     const details = data.details;
-    console.log(query, details);
+
     if (data.isReturn)
       details["cursor"] = { type: oracledb.CURSOR, dir: oracledb.BIND_OUT };
-
     //GETTING ORACLE CONNECTION
     const orcl = await getConnection();
-
     try {
       //GETTING TABLE FROM DATABASE AND SENDING ROWS FROM RESULT
       const result = await orcl.execute(query, details);

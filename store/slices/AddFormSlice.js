@@ -1,21 +1,45 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+const initialState = {
+  firstname: "",
+  lastname: "",
+  bloodgroup: "",
+  gender: "",
+  contact: "",
+  email: "",
+  address: "",
+  password: "",
+  isShowButton: false,
+  isSubmitted: false,
+  isUserDetailButton: false,
+  userDetailButtonData: "",
+  isUserDetailFound: false,
+  userDetails: undefined,
+};
+
 const AddFormSlice = createSlice({
   name: "Auth",
-  initialState: {
-    firstname: "",
-    lastname: "",
-    bloodgroup: "",
-    gender: "",
-    contact: "",
-    email: "",
-    address: "",
-    password: "",
-  },
+  initialState,
   reducers: {
-    setFirstName(state, action) {
-      state.firstname = action.payload;
+    setUserDetailButtonData(state, action) {
+      state.userDetailButtonData = action.payload;
     },
+    setShowButton(state, action) {
+      state.isShowButton = action.payload;
+    },
+    setSubmitButton(state, action) {
+      state.isSubmitted = action.payload;
+    },
+    setUserDetailFound(state, action) {
+      state.isUserDetailFound = action.payload;
+    },
+    setShowUserDetailButton(state, action) {
+      state.isUserDetailButton = action.payload;
+    },
+    setUserDetails(state, action) {
+      state.userDetails = action.payload;
+    },
+
     setDetails(state, action) {
       switch (action.payload.name) {
         case "First Name":
@@ -45,30 +69,20 @@ const AddFormSlice = createSlice({
       }
     },
 
-    // setFirstName(state, action) {
-    //   state.firstname = action.payload;
-    // },
-    // setLastName(state, action) {
-    //   state.lastname = action.payload;
-    // },
-    // setBloodGroup(state, action) {
-    //   state.bloodgroup = action.payload;
-    // },
-    // setGender(state, action) {
-    //   state.gender = action.payload;
-    // },
-    // setContact(state, action) {
-    //   state.contact = action.payload;
-    // },
-    // setEmail(state, action) {
-    //   state.email = action.payload;
-    // },
-    // setAddress(state, action) {
-    //   state.address = action.payload;
-    // },
-    // setPassword(state, action) {
-    //   state.password = action.payload;
-    // },
+    setInitialState(state, action) {
+      state.firstname = action.payload;
+      state.lastname = action.payload;
+      state.password = action.payload;
+      state.bloodgroup = action.payload;
+      state.gender = action.payload;
+      state.contact = action.payload;
+      state.email = action.payload;
+      state.address = action.payload;
+      state.isShowButton = false;
+      state.userDetailButtonData = "";
+      state.isUserDetailFound = false;
+      state.userDetails = undefined;
+    },
   },
 });
 

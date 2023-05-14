@@ -5,7 +5,7 @@ import UpperBar from "./UpperBar";
 import Select from "../../UI/Select";
 import AddForm from "./AddContent/AddForm";
 
-export default function mainComponent() {
+const mainComponent = () => {
   const username = useSelector((state) => state.auth.username);
   const content = useSelector((state) => state.maincontent.content);
   const isShowContent = useSelector((state) => state.maincontent.showContent);
@@ -40,7 +40,9 @@ export default function mainComponent() {
       </Container>
     </>
   );
-}
+};
+
+export default mainComponent;
 
 const showButtonKey = ["View Attendance", "View Details"];
 

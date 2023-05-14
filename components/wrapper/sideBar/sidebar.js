@@ -32,9 +32,9 @@ const getButtons = (username) => {
     case "tch-":
       return [
         "Add Attendance",
-        "View Attendance",
-        "View Student",
-        "View Classes",
+        "View Students",
+        "View Student Attendance",
+        "View Classes List",
       ];
   }
 };

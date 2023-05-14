@@ -7,6 +7,7 @@ import { authActions } from "../../../store/slices/AuthSlice";
 import { mainContentActions } from "../../../store/slices/MainContentSlice";
 import { sideBarActions } from "../../../store/slices/SideBarSlice";
 import { useSelector, useDispatch } from "react-redux";
+import { addFormActions } from "../../../store/slices/AddFormSlice";
 import Card from "../../UI/Card";
 
 const UpperBar = (props) => {
@@ -20,6 +21,7 @@ const UpperBar = (props) => {
     dispatch(authActions.setPassword({ password: "" }));
     dispatch(mainContentActions.setInitialState());
     dispatch(sideBarActions.setInitialState());
+    dispatch(addFormActions.setInitialState(""));
   };
 
   return (

@@ -1,17 +1,24 @@
-import { useSelector } from "react-redux";
 import { mainContentActions } from "../slices/MainContentSlice";
 import { sendRequest } from "./SendRequest";
+import { addFormActions } from "../slices/AddFormSlice";
 
-export const showMainContent = (request, buttonKey) => {
+export const showMainContent = (request, buttonKey, isUserDetailFound) => {
   return async (dispatch) => {
     const showContentDispatcher = (result, isShowContent) => {
       //SETTING DATA FROM DB TO OUR MAIN CONTENT STATE
-      if (buttonKey === "View Attendance") {
+      if (buttonKey === "View Attendance" || buttonKey === "View Details") {
         dispatch(mainContentActions.setSelectList(result));
         dispatch(mainContentActions.showContent(false));
       } else {
-        dispatch(mainContentActions.setContent(result));
         dispatch(mainContentActions.showContent(isShowContent));
+        if (buttonKey.split(" ")[0] === "View") {
+          dispatch(mainContentActions.setContent(result));
+        } else if (buttonKey.split(" ")[0] === "Add") {
+          dispatch(addFormActions.setSubmitButton(isShowContent));
+        } else if (buttonKey.split(" ")[0] === "Edit") {
+          dispatch(addFormActions.setUserDetails(result));
+          dispatch(addFormActions.setUserDetailFound(isShowContent));
+        }
       }
     };
     try {

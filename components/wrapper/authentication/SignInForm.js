@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import { useSelector, useDispatch } from "react-redux";
 import { authActions } from "../../../store/slices/AuthSlice";
 import { sendLoginCredentials } from "../../../store/actions/AuthActions";
-import SnackBar from "./ErrorSnackBar";
+import SnackBar from "../../UI/SnackBar";
 
 const SignInForm = () => {
   const dispatch = useDispatch();
@@ -27,6 +27,12 @@ const SignInForm = () => {
   const formSubmitHandler = (event) => {
     event.preventDefault();
     dispatch(sendLoginCredentials({ username, password }));
+  };
+  const handleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    dispatch(authActions.setError(false));
   };
 
   return (
@@ -53,7 +59,15 @@ const SignInForm = () => {
           SIGN IN
         </Button>
       )}
-      {errorMessage && <SnackBar />}
+      {errorMessage && (
+        <SnackBar
+          data={{
+            alert: "error",
+            message: "USERNAME OR PASSWORD INCORRECT",
+            handleClose,
+          }}
+        />
+      )}
     </form>
   );
 };
