@@ -9,8 +9,10 @@ export default async function handler(req, res) {
     const data = req.body;
     const query = data.query;
     const details = data.details;
-    if (data.isReturn)
+
+    if (data.isReturn) {
       details["cursor"] = { type: oracledb.CURSOR, dir: oracledb.BIND_OUT };
+    }
     //GETTING ORACLE CONNECTION
     const orcl = await getConnection();
     try {
@@ -32,14 +34,3 @@ export default async function handler(req, res) {
     }
   }
 }
-
-const getTable = (username) => {
-  switch (username.toLowerCase().substring(0, 4)) {
-    case "std-":
-      return "student";
-    case "tch-":
-      return "teacher";
-    case "adm-":
-      return "admin";
-  }
-};

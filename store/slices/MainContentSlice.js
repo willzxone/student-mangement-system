@@ -1,15 +1,21 @@
 import { createSlice } from "@reduxjs/toolkit";
+
 const initialState = {
   content: undefined,
   showContent: false,
   selectList: undefined,
   selectedList: "",
+  selectedDate: "2020-01-01",
 };
 
 const mainContentSlice = createSlice({
   name: "MainContent",
   initialState,
   reducers: {
+    setSelectDate(state, action) {
+      state.selectedDate = action.payload;
+    },
+
     showContent(state, action) {
       state.showContent = action.payload;
     },
@@ -26,7 +32,8 @@ const mainContentSlice = createSlice({
       state.content = undefined;
       state.showContent = false;
       state.selectList = undefined;
-      state.selectedList = "";
+      state.selectedList = false;
+      state.selectedDate = "2020-01-01";
     },
   },
 });

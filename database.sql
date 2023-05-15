@@ -165,13 +165,140 @@ END;
 
 CREATE OR REPLACE PROCEDURE ADD_CLASS(class_name VARCHAR2, class_location VARCHAR2, teacher_id VARCHAR2)
 AS
-
 BEGIN
 SAVEPOINT CURRENT_DB_STATE;   
     
     INSERT INTO CLASS VALUES('cls-0',class_name,class_location);
     
     INSERT INTO TCHCLASSDETAILS VALUES (teacher_id, 'cls-' || LPAD(CLASS_ID_SEQ.CURRVAL, 3, '0'));
+EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK TO CURRENT_DB_STATE;       
+END;
+
+CREATE OR REPLACE PROCEDURE ADD_SCHEDULE_CLASS(starting_time TIMESTAMP, ending_time TIMESTAMP, schedule_day VARCHAR2, class_id VARCHAR2)
+AS
+CLASS_START_TIME timestamp;
+CLASS_END_TIME timestamp;
+BEGIN
+SAVEPOINT CURRENT_DB_STATE;   
+    INSERT INTO classschedule VALUES(starting_time,ending_time,schedule_day,class_id);
+    
+EXCEPTION
+    WHEN OTHERS THEN
+    
+      ROLLBACK TO CURRENT_DB_STATE;       
+END;
+
+CREATE OR REPLACE PROCEDURE GET_CLASSES(l_result OUT SYS_REFCURSOR)
+AS
+BEGIN
+SAVEPOINT CURRENT_DB_STATE;
+    OPEN l_result FOR
+        'SELECT * FROM GET_CLASS';
+EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK TO CURRENT_DB_STATE;
+END;
+
+CREATE OR REPLACE PROCEDURE GET_CLASSES_STD_DETAIL(username VARCHAR2,l_result OUT SYS_REFCURSOR)
+AS
+BEGIN
+SAVEPOINT CURRENT_DB_STATE;
+    OPEN l_result FOR
+        'SELECT s.std_id "STUDENT ID", s.first_name|| '' '' ||s.last_name "STUDENT NAME"
+        FROM CLASS c, STDCLASSDETAILS std_c,student s
+        WHERE c.class_id = std_c.class_id AND std_c.std_id = s.std_id AND c.class_id = :username
+        ORDER BY s.std_id'
+        USING USERNAME;
+EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK TO CURRENT_DB_STATE;
+END;
+
+CREATE OR REPLACE PROCEDURE GET_CLASSES_SPECFIC_TCH(username VARCHAR2, l_result OUT SYS_REFCURSOR)
+AS
+BEGIN
+SAVEPOINT CURRENT_DB_STATE;
+    OPEN l_result FOR
+        'SELECT c.class_id AS "CLASS ID",c.class_name "CLASS NAME"
+        FROM CLASS c, TCHCLASSDETAILS cdetail
+        WHERE c.class_id = cdetail.class_id AND cdetail.t_id = :username'
+        USING username;
+EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK TO CURRENT_DB_STATE;
+END;
+
+CREATE OR REPLACE PROCEDURE ADD_ATTENDANCE(classid VARCHAR2, attendanceDate date, status VARCHAR2,stdid VARCHAR2)
+AS
+BEGIN
+SAVEPOINT CURRENT_DB_STATE;   
+    INSERT INTO attendance VALUES ('att-0', status, attendanceDate);
+    INSERT INTO attendanceClass VALUES ('att-' || LPAD(ATTENDANCE_ID_SEQ.CURRVAL, 3, '0'), classid);
+    INSERT INTO attendanceStudent VALUES ('att-' || LPAD(ATTENDANCE_ID_SEQ.CURRVAL, 3, '0'), stdid); 
+EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK TO CURRENT_DB_STATE;
+END;
+
+CREATE OR REPLACE PROCEDURE UPDATE_ATTENDANCE(classid VARCHAR2, attendanceDate date, status VARCHAR2,stdid VARCHAR2)
+AS
+update_att_id attendance.attendance_id%type := '';
+sql_statement VARCHAR(200);
+BEGIN
+SAVEPOINT CURRENT_DB_STATE;   
+    EXECUTE IMMEDIATE 'SELECT attendance_id FROM GET_ATTENDANCE WHERE class_id = :classid AND std_id = :stdid AND attendance_date = :attendanceDate'
+    INTO update_att_id
+    USING classid, stdid, attendanceDate;
+    
+    EXECUTE IMMEDIATE 'UPDATE ATTENDANCE
+    SET status = :status
+    WHERE attendance_id = :update_att_id'
+    USING status,update_att_id;  
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      ADD_ATTENDANCE(classid , attendanceDate , status ,stdid);
+    WHEN OTHERS THEN
+      ROLLBACK TO CURRENT_DB_STATE;
+END;
+
+CREATE OR REPLACE PROCEDURE VIEW_ATTENDANCE(classid VARCHAR2, attendanceDate date,l_result OUT SYS_REFCURSOR)
+AS
+BEGIN
+SAVEPOINT CURRENT_DB_STATE;   
+    OPEN l_result FOR
+        'SELECT std_id "STUDENT_ID",status "STATUS"
+        FROM GET_ATTENDANCE
+        WHERE class_id = :classid AND attendance_date = :attendanceDate'
+        USING classid,attendanceDate;
+EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK TO CURRENT_DB_STATE;
+END;
+
+CREATE OR REPLACE PROCEDURE GET_CLASSES_DETAIL_TCH(classid VARCHAR2,username VARCHAR2, l_result OUT SYS_REFCURSOR)
+AS
+BEGIN
+SAVEPOINT CURRENT_DB_STATE;
+    OPEN l_result FOR
+        'SELECT "STUDENT ID", "STUDENT NAME"
+        FROM "GET_CLASS_STD_SPECIFIC_TEACHER"
+        WHERE class_id = :classid AND t_id = :username
+        ORDER BY "STUDENT ID"'
+        USING classid,username;
+EXCEPTION
+    WHEN OTHERS THEN
+      ROLLBACK TO CURRENT_DB_STATE;
+END;
+
+CREATE OR REPLACE PROCEDURE ADD_STD_CLASS(classid VARCHAR2,stdid VARCHAR2)
+AS
+BEGIN
+SAVEPOINT CURRENT_DB_STATE;   
+    
+    INSERT INTO STDCLASSDETAILS VALUES(stdid,classid);
+    
 EXCEPTION
     WHEN OTHERS THEN
       ROLLBACK TO CURRENT_DB_STATE;       
@@ -204,7 +331,14 @@ BEGIN
     :NEW.class_id := 'cls-' || LPAD(CLASS_ID_SEQ.NEXTVAL, 3, '0');
 END;
 
+--
 
+CREATE OR REPLACE TRIGGER ATD_ID_TRIGGER
+BEFORE INSERT ON attendance
+FOR EACH ROW
+BEGIN
+    :NEW.attendance_id := 'att-' || LPAD(ATTENDANCE_ID_SEQ.NEXTVAL, 3, '0');
+END;
 --------------------------------------------------------------------SEQUENCES--------------------------------------------------------------------
 --STUDENT
 CREATE SEQUENCE STD_ID_SEQ
@@ -235,9 +369,43 @@ CREATE SEQUENCE CLASS_ID_SEQ
     MAXVALUE 9999999999
     CYCLE
     NOCACHE;
-SELECT CLASS_ID_SEQ.NEXTVAL FROM DUAL;
 
 DROP SEQUENCE CLASS_ID_SEQ;
+
+--ATTENDANCE
+CREATE SEQUENCE ATTENDANCE_ID_SEQ
+    START WITH 1
+    INCREMENT BY 1
+    MAXVALUE 9999999999
+    CYCLE
+    NOCACHE;
+
+DROP SEQUENCE ATTENDANCE_ID_SEQ;
+
+
+--------------------------------------------------------------------VIEWS------------------------------------------------------------------------
+
+CREATE VIEW GET_CLASS AS
+SELECT c.class_id AS "CLASS ID",c.class_name "CLASS NAME",c.class_location "LOCATION",t.first_name || ' ' || t.last_name "TEACHER NAME"
+FROM CLASS c,TCHCLASSDETAILS tc_d, TEACHER t
+WHERE c.class_id = tc_d.class_id AND tc_d.t_id = t.t_id
+ORDER BY c.class_id;
+
+CREATE VIEW GET_CLASSES_STD AS
+SELECT std_c.std_id , s.first_name,s.last_name,c.class_id 
+        FROM CLASS c, STDCLASSDETAILS std_c,student s
+        WHERE c.class_id = std_c.class_id AND std_c.std_id = s.std_id;
+
+CREATE VIEW GET_ATTENDANCE AS
+SELECT a.attendance_id, a.attendance_date,ac.class_id,ast.std_id,a.status
+from attendance a, attendanceClass ac,attendanceStudent ast 
+WHERE a.attendance_id = ac.attendance_id AND a.attendance_id = ast.attendance_id;
+
+CREATE VIEW GET_CLASS_STD_SPECIFIC_TEACHER AS
+SELECT s.std_id "STUDENT ID", s.first_name|| ' ' ||s.last_name "STUDENT NAME",c.class_id,t.t_id
+        FROM CLASS c, STDCLASSDETAILS std_c,student s,TCHCLASSDETAILS tch_c,teacher t
+        WHERE t.t_id = tch_c.t_id AND tch_c.class_id = c.class_id AND std_c.class_id = c.class_id AND std_c.std_id = s.std_id;
+
 
 --------------------------------------------------------------------QUERIES--------------------------------------------------------------------
 

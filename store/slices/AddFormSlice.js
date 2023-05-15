@@ -12,6 +12,10 @@ const initialState = {
   classname: "",
   classlocation: "",
   teacherid: "",
+  classid: "",
+  classStartTime: "08:00:00",
+  classEndTime: "10:15:00",
+  classDay: "",
   isShowButton: false,
   isSubmitted: false,
   isUserDetailButton: false,
@@ -26,6 +30,7 @@ const AddFormSlice = createSlice({
   name: "Auth",
   initialState,
   reducers: {
+    setScheduleClass(state, action) {},
     setSnackBarMessage(state, action) {
       state.snackbarMessage = action.payload;
     },
@@ -86,6 +91,18 @@ const AddFormSlice = createSlice({
         case "Teacher ID":
           state.teacherid = action.payload.value;
           break;
+        case "Class Start Time":
+          state.classStartTime = action.payload.value;
+          break;
+        case "Class End Time":
+          state.classEndTime = action.payload.value;
+          break;
+        case "Class Day":
+          state.classDay = action.payload.value;
+          break;
+        case "Class ID":
+          state.classid = action.payload.value;
+          break;
       }
     },
 
@@ -105,6 +122,10 @@ const AddFormSlice = createSlice({
       state.classlocation = "";
       state.classname = "";
       state.teacherid = "";
+      state.classid = "";
+      state.classEndTime = "10:15";
+      state.classStartTime = "08:00";
+      state.classDay = "";
     },
   },
 });

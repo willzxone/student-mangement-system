@@ -17,6 +17,13 @@ const query = (button) => {
       return "BEGIN GET_SCHEDULED_CLASSES_SPECFIC_STD(:username, :cursor); END;";
     case "view attendance":
       return "BEGIN GET_CLASSES_SPECFIC_STD(:username, :cursor); END;";
+    case "view details":
+    case "enroll class":
+      return "BEGIN GET_CLASSES(:cursor); END;";
+    case "add attendance":
+    case "view student attendance":
+    case "view students":
+      return "BEGIN GET_CLASSES_SPECFIC_TCH(:username,:cursor); END;";
     case "add student":
     case "add teacher":
       return "ADD USER";
@@ -39,35 +46,45 @@ const LowerBar = (props) => {
     event.preventDefault();
     if (
       event.target.textContent === "View Attendance" ||
-      event.target.textContent === "View Details"
+      event.target.textContent === "View Details" ||
+      event.target.textContent === "Add Attendance"
     )
       dispatch(mainContentActions.setSelectedList(""));
 
     //Setting which button is clicked
-    dispatch(sideBarActions.setButtonKey(event.target.textContent));
     dispatch(mainContentActions.setContent(undefined));
     dispatch(addFormActions.setInitialState(""));
     dispatch(addFormActions.setUserDetailButtonData(""));
+    dispatch(sideBarActions.setButtonKey(event.target.textContent));
+    dispatch(mainContentActions.setSelectedList(""));
 
     //Dispatching Action To Get Data From DB Respective To That Button
     const queryDetails = query(event.target.textContent);
     if (queryDetails.length > 20) {
       dispatch(
         showMainContent(
-          RequestForApi(queryDetails, { username }, true),
+          RequestForApi(
+            queryDetails,
+            event.target.textContent === "View Details" ||
+              event.target.textContent === "Enroll Class"
+              ? { cursor: "" }
+              : { username },
+            true
+          ),
           event.target.textContent
         )
       );
     } else if (
       queryDetails === "ADD USER" ||
       queryDetails === "EDIT USER" ||
-      queryDetails === "ADD CLASS"
+      queryDetails === "ADD CLASS" ||
+      queryDetails === "VIEW CLASS"
     ) {
       dispatch(mainContentActions.showContent(true));
       if (queryDetails === "EDIT USER")
         dispatch(addFormActions.setShowUserDetailButton(true));
       else dispatch(addFormActions.setShowUserDetailButton(false));
-    } else dispatch(mainContentActions.showContent(false));
+    } else dispatch(mainContentActions.showContent(true));
   };
 
   return (

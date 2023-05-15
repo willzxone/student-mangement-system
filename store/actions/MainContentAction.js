@@ -6,20 +6,27 @@ export const showMainContent = (request, buttonKey) => {
   return async (dispatch) => {
     const showContentDispatcher = (result, isShowContent) => {
       //SETTING DATA FROM DB TO OUR MAIN CONTENT STATE
-      if (buttonKey === "View Attendance" || buttonKey === "View Details") {
+      const snackBarData = buttonKey.split(" ");
+      if (
+        buttonKey === "View Attendance" ||
+        buttonKey === "View Details" ||
+        buttonKey === "Add Attendance" ||
+        buttonKey === "View Student Attendance" ||
+        buttonKey === "View Students" ||
+        buttonKey === "Enroll Class"
+      ) {
         dispatch(mainContentActions.setSelectList(result));
         dispatch(mainContentActions.showContent(false));
       } else {
-        console.log(buttonKey);
         dispatch(mainContentActions.showContent(isShowContent));
-        const snackBarData = buttonKey.split(" ");
-        dispatch(
-          addFormActions.setSnackBarMessage(
-            `${snackBarData[1].toUpperCase()} ${snackBarData[0].toUpperCase()}ED SUCCESSFULLY!`
-          )
-        );
+        snackBarData.length > 1 &&
+          dispatch(
+            addFormActions.setSnackBarMessage(
+              `${snackBarData[1].toUpperCase()} ${snackBarData[0].toUpperCase()}ED SUCCESSFULLY!`
+            )
+          );
         dispatch(addFormActions.setSnackBarAlert("success"));
-        if (buttonKey.split(" ")[0] === "View") {
+        if (buttonKey.split(" ")[0] === "View" || snackBarData.length === 1) {
           dispatch(mainContentActions.setContent(result));
         } else if (buttonKey.split(" ")[0] === "Add") {
           dispatch(addFormActions.setSubmitButton(isShowContent));
@@ -36,6 +43,7 @@ export const showMainContent = (request, buttonKey) => {
           query: request.query,
           details: request.details,
           isReturn: request.isReturn,
+          isTime: request.isTime,
         },
       });
       showContentDispatcher(result, true);

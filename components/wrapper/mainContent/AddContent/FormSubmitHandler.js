@@ -2,6 +2,14 @@ import { RequestForApi } from "../../sideBar/RequestForApi";
 import { showMainContent } from "../../../../store/actions/MainContentAction";
 import { addFormActions } from "../../../../store/slices/AddFormSlice";
 
+function getDateWithTimeString(timeString) {
+  const now = new Date();
+  console.log(timeString);
+  const [hours, minutes] = timeString.split(":").map(Number);
+  now.setHours(hours + 5, minutes, 0, 0);
+  return now;
+}
+
 const getDetails = (username, buttonKey, formData, userDetailButtonData) => {
   if (username !== "Class" && buttonKey !== "Schedule Class") {
     const data = {
@@ -17,11 +25,19 @@ const getDetails = (username, buttonKey, formData, userDetailButtonData) => {
     };
     if (buttonKey.split(" ")[0] === "Edit") data.user_id = userDetailButtonData;
     return data;
-  } else {
+  } else if (buttonKey === "Create Class") {
     const data = {
       classname: formData[0].value,
       classlocation: formData[1].value,
       teacherid: formData[2].value,
+    };
+    return data;
+  } else if (buttonKey === "Schedule Class") {
+    const data = {
+      classid: formData[0].value,
+      day: formData[1].value,
+      starttime: getDateWithTimeString(formData[2].value),
+      endtime: getDateWithTimeString(formData[3].value),
     };
     return data;
   }
@@ -67,6 +83,8 @@ const query = (button) => {
       return "BEGIN EDIT_USER(USER_ID => :user_id,first_name=> :firstname, last_name=>:lastname, contact=>:contact, blood_group=>:bloodgroup ,address=>:address,email=> :email,gender=>:gender,pass=>:password,table_name=>:username); END;";
     case "create class":
       return "BEGIN ADD_CLASS(:classname, :classlocation, :teacherid); END;";
+    case "schedule class":
+      return `BEGIN ADD_SCHEDULE_CLASS(TO_TIMESTAMP(:starttime, 'YYYY-MM-DD"T"HH24:MI:SS.FF3"Z"'),TO_TIMESTAMP(:endtime, 'YYYY-MM-DD"T"HH24:MI:SS.FF3"Z"'),:day,:classid); END;`;
     default:
       return null;
   }

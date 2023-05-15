@@ -18,7 +18,12 @@ export default function sidebar() {
 const getButtons = (username) => {
   switch (username.toLowerCase().substring(0, 4)) {
     case "std-":
-      return ["View Attendance", "View Class", "View Scheduled Classes"];
+      return [
+        "View Class",
+        "Enroll Class",
+        "View Attendance",
+        "View Scheduled Classes",
+      ];
     case "adm-":
       return [
         "Add Student",
@@ -30,11 +35,6 @@ const getButtons = (username) => {
         "View Details",
       ];
     case "tch-":
-      return [
-        "Add Attendance",
-        "View Students",
-        "View Student Attendance",
-        "View Classes List",
-      ];
+      return ["Add Attendance", "View Students", "View Student Attendance"];
   }
 };

@@ -15,17 +15,20 @@ const AddForm = () => {
   const isSubmitted = useSelector((state) => state.addform.isSubmitted);
   const snackBarData = useSelector((state) => state.addform.snackbarMessage);
   const snackBarAlert = useSelector((state) => state.addform.snackbarAlert);
-
   const isUserDetailButton = useSelector(
     (state) => state.addform.isUserDetailButton
   );
   const userDetailButtonData = useSelector(
     (state) => state.addform.userDetailButtonData
   );
-  const username = buttonKey.split(" ")[1];
 
+  const username = buttonKey.split(" ")[1];
+  const buttonData = buttonKey.split(" ");
   const isShowClassAddForm =
-    username !== "Class" && buttonKey !== "Schedule Class";
+    username === "Class" && buttonKey !== "Schedule Class";
+
+  const isShowScheduleClassForm =
+    username === "Class" && buttonKey === "Schedule Class";
 
   const formDataUser = [
     {
@@ -62,14 +65,42 @@ const AddForm = () => {
     },
   ];
 
+  const formDataClassSchedule = [
+    {
+      name: "Class ID",
+      value: useSelector((state) => state.addform.classid),
+    },
+    {
+      name: "Class Day",
+      value: useSelector((state) => state.addform.classDay),
+    },
+    {
+      name: "Class Start Time",
+      value: useSelector((state) => state.addform.classStartTime),
+    },
+    {
+      name: "Class End Time",
+      value: useSelector((state) => state.addform.classEndTime),
+    },
+  ];
+
   useEffect(() => {
-    if (formDataUser.every((obj) => obj.value.trim() !== "")) {
-      dispatch(addFormActions.setShowButton(true));
-    } else dispatch(addFormActions.setShowButton(false));
+    if (isShowScheduleClassForm) {
+      if (formDataClassSchedule.every((obj) => obj.value.trim() !== "")) {
+        dispatch(addFormActions.setShowButton(true));
+      } else dispatch(addFormActions.setShowButton(false));
+    }
+  }, [formDataClassSchedule, isShowScheduleClassForm]);
+
+  useEffect(() => {
+    if (!isShowScheduleClassForm && !isShowClassAddForm)
+      if (formDataUser.every((obj) => obj.value.trim() !== "")) {
+        dispatch(addFormActions.setShowButton(true));
+      } else dispatch(addFormActions.setShowButton(false));
   }, [formDataUser]);
 
   useEffect(() => {
-    if (!isShowClassAddForm) {
+    if (isShowClassAddForm) {
       if (formDataClass.every((obj) => obj.value.trim() !== "")) {
         dispatch(addFormActions.setShowButton(true));
       } else {
@@ -93,7 +124,11 @@ const AddForm = () => {
           event,
           dispatch,
           buttonKey,
-          isShowClassAddForm ? formDataUser : formDataClass,
+          isShowClassAddForm
+            ? formDataClass
+            : isShowScheduleClassForm
+            ? formDataClassSchedule
+            : formDataUser,
           username,
           userDetailButtonData
         )
@@ -107,8 +142,10 @@ const AddForm = () => {
         )}
         {isUserDetailButton && <SearchBar username={username} />}
         {isShowClassAddForm
-          ? getInputs(formDataUser, dispatch, username)
-          : getInputs(formDataClass, dispatch, username)}
+          ? getInputs(formDataClass, dispatch, buttonData)
+          : isShowScheduleClassForm
+          ? getInputs(formDataClassSchedule, dispatch, buttonData)
+          : getInputs(formDataUser, dispatch, buttonData)}
         {isShowButton && (
           <Grid display="flex" justifyContent="center" xs={4}>
             <Button

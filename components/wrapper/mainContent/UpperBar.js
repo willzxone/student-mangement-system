@@ -1,6 +1,7 @@
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import TypoGraphy from "./../../UI/Typography";
+import { getUserName } from "./GetUserName";
 
 const drawerWidth = 350;
 const toolBarStyle = {
@@ -16,21 +17,10 @@ const UpperBar = (props) => {
       sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}
     >
       <Toolbar style={toolBarStyle}>
-        <TypoGraphy text={getText(props.username)} />
+        <TypoGraphy text={getUserName(props.username) + " PORTAL"} />
       </Toolbar>
     </AppBar>
   );
 };
 
 export default UpperBar;
-
-const getText = (username) => {
-  switch (username.toLowerCase().substring(0, 4)) {
-    case "std-":
-      return "STUDENT PORTAL";
-    case "adm-":
-      return "ADMIN PORTAL";
-    case "tch-":
-      return "TEACHER PORTAL";
-  }
-};
